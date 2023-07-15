@@ -6,32 +6,38 @@ public class Program
 {
 	public static void Main()
 	{
-		var open = new Dictionary<(int, int), int>();
-		var closed = new Dictionary<(int, int), int>();
-		var pQueue = new Dictionary<(int, int), int>();
+		// position by 
+		var open = new Dictionary<(int, int), Node>();
+		var closed = new Dictionary<(int, int), Node>();
 		
-		pQueue.Add((0, 0), 3);
-		pQueue.Add((1, 1), 1);
-		pQueue.Add((2, 2), 5);
+		//var pQueue = new Dictionary<(int, int), int>();
+		var pQueue = new List<Node>();
 		
-		var sorted_dict = pQueue.OrderBy(item => item.Value).ToDictionary(item => item.Key, item => item.Value);
-		/*foreach(var item in sorted_dict)
-		{
-			Console.WriteLine(item.Key + "-" + item.Value);
-		}*/
-		KeyValuePair<(int, int), int> pop = sorted_dict.First();
+		var node_a = new Node((0, 0), (1, 3), 0, 10);
+		node_a.g_value = 9;
+		Console.WriteLine(node_a.g_value);
 		
-		Console.WriteLine(pop.Value);
-		Console.WriteLine(sorted_dict.First().Key);
+		pQueue.Add(new Node((0, 0), (0, 0), 3, 7));
+		pQueue.Add(new Node((1, 1), (0, 0), 1, 4));
+		pQueue.Add(new Node((2, 2), (1, 1), 5, 9));
 		
-		Console.WriteLine(pQueue[(0, 0)]);
+		//var sorted_dict = pQueue.OrderBy(item => item.Value).ToDictionary(item => item.Key, item => item.Value);
+		//KeyValuePair<(int, int), int> pop = sorted_dict.First();
 		
-		heuristic((0, 0), (3, 7));
+		var sorted_list = pQueue.OrderBy(node => node.g_value).ToList();
+		Console.WriteLine(sorted_list.Count);
+		
+		Node smallest = sorted_list.First();
+		
+		Console.WriteLine(smallest.position);
+		
+		//Console.WriteLine(pQueue[(0, 0)]);
+		
+		Console.WriteLine(heuristic((0, 0), (3, 7)));
 	}
 	
 	int expand_node(KeyValuePair<(int, int), int> current_node, KeyValuePair<(int, int), int> end_node, Dictionary<(int, int), int> pQueue)
 	{
-		//throw new NotImplementedException();
 		
 		// runs for each neibors
 		// gets the eucleudian distance between neighbor_node and end_node
@@ -46,16 +52,24 @@ public class Program
 		(int x_1, int y_1) = start_node;
 		(int x_2, int y_2) = end_node;
 		
-		var eucDist = Math.Sqrt(Math.Pow(x_1 - x_2, 2) + Math.Pow(x_1 - x_2, 2));
+		var euclidian_distance = Math.Sqrt(Math.Pow(x_1 - x_2, 2) + Math.Pow(y_1 - y_2, 2));
 		
-		return eucDist;
+		return euclidian_distance;
 	}
 	
 	public class Node
 	{
-		(int, int) position;
-		int g_value = 9999;
-		int f_value = 9999;
-		(int, int) previous_node;
+		public (int, int) position { get; set; }
+		public int g_value = 9999;
+		public int f_value = 9999;
+		public (int, int) previous_node { get; set; }
+		
+		public Node((int, int) Position, (int, int) Prev, int G_value, int F_value)
+		{
+			this.position = Position;
+			this.previous_node = Prev;
+			this.g_value = G_value;
+			this.f_value = F_value;
+		}
 	}
 }
