@@ -7,7 +7,7 @@ public class Program
 	public static void Main()
 	{
 		// position by 
-		var open = new Dictionary<(int, int), Node>();
+		//var open = new Dictionary<(int, int), Node>();
 		var closed = new Dictionary<(int, int), Node>();
 		
 		//var pQueue = new Dictionary<(int, int), int>();
@@ -38,9 +38,12 @@ public class Program
 	
 	int expand_node(KeyValuePair<(int, int), int> current_node, KeyValuePair<(int, int), int> end_node, Dictionary<(int, int), int> pQueue)
 	{
-		
+		// get all valid neighbors
 		// runs for each neibors
-		// gets the eucleudian distance between neighbor_node and end_node
+			// if node is goal stop
+			// compute f: g+h gets the eucleudian distance between neighbor_node and end_node
+			// continue if in open and lower
+			// 
 		// checks if 
 		//(int x_1, int y_1) = pQueue[current_node];
 		
