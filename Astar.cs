@@ -17,7 +17,7 @@ public class Program
         OpenPriorityQueue.Add(new Node((0, 0), null, 0));
 
         // loop the open list until goal is found or no nodes to explore
-        for (int i = 0; i < 9; i++)
+        for (int i = 0; i < 15; i++)
         {
             // pop node with lowest f-value(lowest total distance)
             sorted_list = OpenPriorityQueue.OrderBy(node => node.f_value).ToList();
@@ -27,7 +27,9 @@ public class Program
             OpenPriorityQueue.Remove(popped_node);
 
             Console.WriteLine($"Expanding node: {popped_node.position}");
-            expand_node(popped_node);
+            bool? found_goal = expand_node(popped_node);
+
+            if (found_goal is not null) { break; }
 
             // push to closed list
             closed[popped_node.position] = popped_node;
@@ -37,19 +39,8 @@ public class Program
         }
         OpenPriorityQueue.ForEach(delegate (Node node) { Console.WriteLine($"{node.position} | {node.g_value} | {node.f_value}"); });
 
-        static void expand_node(Node expanding_node)
+        static bool? expand_node(Node expanding_node)
         {
-            // get all neighbors
-            // filter invalid neighbors
-            // runs for each neibors
-            // if node is goal stop
-            // compute f: g+h gets the eucleudian distance between neighbor_node and end_node
-            // continue if in open and lower
-            // 
-            // checks if 
-            //(int x_1, int y_1) = pQueue[current_node];
-            // -----------------------------//
-
             var neighbors = get_neighbors(expanding_node.position);
 
             Console.WriteLine($"gathering all neighbors for node: {expanding_node.position}");
@@ -57,7 +48,11 @@ public class Program
 
             foreach ((int, int) neighbor_position in neighbors)
             {
-                // if node == end_node: stop
+                if (neighbor_position == end_node.position)
+                {
+                    Console.WriteLine($"Goal found at node: {expanding_node.position}, with distance: {expanding_node.f_value + 1}!");
+                    return true;
+                }
 
 
                 // if node in closed, already expanded so skip
@@ -85,9 +80,8 @@ public class Program
                 }
 
                 OpenPriorityQueue.Add(neighbor);
-
-                // Console.WriteLine($"{expanding_node.position} {neighbor.position} - {neighbor.g_value} - {neighbor.f_value}");
             }
+            return null;
         }
 
         static double heuristic((int, int) start_node, (int, int) end_node)
