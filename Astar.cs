@@ -17,12 +17,14 @@ public class Program
         OpenPriorityQueue.Add(new Node((0, 0), null, 0));
 
         // loop the open list until goal is found or no nodes to explore
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 9; i++)
         {
             // pop node with lowest f-value(lowest total distance)
-            sorted_list = OpenPriorityQueue.OrderBy(node => node.g_value).ToList();
+            sorted_list = OpenPriorityQueue.OrderBy(node => node.f_value).ToList();
             popped_node = sorted_list.First();
-            OpenPriorityQueue.RemoveAt(0);
+
+            // remove from open list prioqueue
+            OpenPriorityQueue.Remove(popped_node);
 
             Console.WriteLine($"Expanding node: {popped_node.position}");
             expand_node(popped_node);
@@ -30,7 +32,7 @@ public class Program
             // push to closed list
             closed[popped_node.position] = popped_node;
 
-            Console.WriteLine(String.Concat(sorted_list.Select(o => o.position.ToString() + ',')));
+            //Console.WriteLine(String.Concat(sorted_list.Select(o => o.position.ToString() + ',')));
             Console.WriteLine(String.Concat(OpenPriorityQueue.Select(o => o.position.ToString() + ',')));
         }
         OpenPriorityQueue.ForEach(delegate (Node node) { Console.WriteLine($"{node.position} | {node.g_value} | {node.f_value}"); });
@@ -57,8 +59,9 @@ public class Program
             {
                 // if node == end_node: stop
 
-                // if node in closed: stop
-                //if (closed.ContainsKey())
+
+                // if node in closed, already expanded so skip
+                if (closed.ContainsKey(neighbor_position)) { continue; }
 
                 double neighbor_g_value = expanding_node.g_value + 1;
                 double neighbor_f_value = neighbor_g_value + heuristic(neighbor_position, end_node.position);
