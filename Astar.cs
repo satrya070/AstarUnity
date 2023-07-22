@@ -29,31 +29,34 @@ public class Program
             Console.WriteLine($"Expanding node: {popped_node.position}");
             bool? found_goal = expand_node(popped_node);
 
-            if (found_goal is not null) { break; }
-
             // push to closed list
             closed[popped_node.position] = popped_node;
 
-            //Console.WriteLine(String.Concat(sorted_list.Select(o => o.position.ToString() + ',')));
-            Console.WriteLine(String.Concat(OpenPriorityQueue.Select(o => o.position.ToString() + ',')));
+            if (found_goal is true) { break; }
+
+            //Console.WriteLine(String.Concat(OpenPriorityQueue.Select(o => o.position.ToString() + ',')));
         }
-        OpenPriorityQueue.ForEach(delegate (Node node) { Console.WriteLine($"{node.position} | {node.g_value} | {node.f_value}"); });
+
+        OpenPriorityQueue.ForEach(delegate (Node node) { Console.WriteLine($"{node.position} | {node.g_value} | {node.f_value} | {node.previous_node}"); });
+
+        var closed_lines = closed.Select(kvp => $"{kvp.Key}: {kvp.Value.previous_node}");
+        Console.WriteLine(String.Join(", ", closed_lines));
+        var last_node = closed.Last();
+        Console.WriteLine($"{last_node.Key}: {last_node.Value.g_value} | {last_node.Value.f_value} | {last_node.Value.previous_node}");
 
         static bool? expand_node(Node expanding_node)
         {
             var neighbors = get_neighbors(expanding_node.position);
 
             Console.WriteLine($"gathering all neighbors for node: {expanding_node.position}");
-            //neighbors.ForEach(delegate((int, int) x) { Console.WriteLine(x); });
 
             foreach ((int, int) neighbor_position in neighbors)
             {
                 if (neighbor_position == end_node.position)
                 {
-                    Console.WriteLine($"Goal found at node: {expanding_node.position}, with distance: {expanding_node.f_value + 1}!");
+                    Console.WriteLine($"Goal found at node: {expanding_node.position}, with distance: {expanding_node.f_value}!");
                     return true;
                 }
-
 
                 // if node in closed, already expanded so skip
                 if (closed.ContainsKey(neighbor_position)) { continue; }
@@ -69,7 +72,12 @@ public class Program
                 {
                     if (neighbor_in_open.f_value > neighbor.f_value)
                     {
-                        Console.WriteLine("update node in open, with smaller one and continue");
+                        // update node in open, with smaller one and continue
+                        Console.WriteLine("smaller open found!");
+                        neighbor_in_open.g_value = neighbor.g_value;
+                        neighbor_in_open.f_value = neighbor.f_value;
+                        neighbor_in_open.previous_node = expanding_node.position;
+
                         continue;
                     }
                     else
