@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.UIElements;
 
 public class AstarMain : MonoBehaviour
 {
@@ -13,6 +14,10 @@ public class AstarMain : MonoBehaviour
     void Start()
     {
         tilemap = GetComponent<Tilemap>();
+
+        tilemap.SetTileFlags(new Vector3Int(-9, 4, 0), TileFlags.None);
+        Debug.Log(tilemap.GetTileFlags(new Vector3Int(-9, 4, 0)));
+        tilemap.SetColor(new Vector3Int(-9, 4, 0), new Color(253f, 0.4f, 0.6f));
     }
 
     // Update is called once per frame
@@ -36,9 +41,18 @@ public class AstarMain : MonoBehaviour
             //Debug.Log(tile_coords);
 
             var tile = tilemap.GetTile(tile_coords);
-            Debug.Log($"start_node is: {start_node}");
 
-            Debug.Log(tile.name);
+            Debug.Log($"start_node is: {start_node}");
+            
+
+            //Debug.Log(tile.);
+
+            // try set color and couroutine etst
+            //var tilo = tilemap.GetTile(tile)
+            //Debug.Log();
+            tilemap.SetTileFlags(tile_coords, TileFlags.None);
+            tilemap.SetColor(tile_coords, new Color(253f, 0.4f, 0.6f));
+
         }
 
         if (Input.GetMouseButtonDown(1))
