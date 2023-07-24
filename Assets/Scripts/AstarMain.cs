@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -18,6 +19,8 @@ public class AstarMain : MonoBehaviour
         tilemap.SetTileFlags(new Vector3Int(-9, 4, 0), TileFlags.None);
         Debug.Log(tilemap.GetTileFlags(new Vector3Int(-9, 4, 0)));
         tilemap.SetColor(new Vector3Int(-9, 4, 0), new Color(253f, 0.4f, 0.6f));
+
+        StartCoroutine(pathRenderer());
     }
 
     // Update is called once per frame
@@ -72,6 +75,20 @@ public class AstarMain : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Return))
         {
             Debug.Log("Starting Astar!");
+        }
+    }
+
+    IEnumerator pathRenderer()
+    {
+        var nodes = new List<(int, int)>();
+        nodes.Add((0, 1));
+        nodes.Add((1, 2));
+        nodes.Add((2, 3));
+
+        foreach (var node in nodes)
+        {
+            Debug.Log(node);
+            yield return new WaitForSeconds(5f);
         }
     }
 }
