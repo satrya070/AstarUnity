@@ -87,11 +87,13 @@ public partial class AstarMain : MonoBehaviour
                 return;
             }
 
-            Debug.Log("starting Astar!");
+            Debug.Log($"starting Astar from node{start_node.position} to {end_node.position}!");
             // first node in open queue is start node
             OpenPriorityQueue.Add(start_node);
+            bool found_goal = false;
 
-            for (int i = 0; i < 15; i++)
+            //for (int i = 0; i < 15; i++)
+            while (found_goal is false && OpenPriorityQueue.Count > 0)
             {
                 // imitate priority queue behavior (pop node with lowest dist)
                 var sorted_list = OpenPriorityQueue.OrderBy(node => node.g_value).ToList();
@@ -100,14 +102,14 @@ public partial class AstarMain : MonoBehaviour
                 // remove from open list prioqueue
                 OpenPriorityQueue.Remove(popped_node);
 
-                Console.WriteLine($"Expanding node: {popped_node.position}");
-                bool? found_goal = expand_node(popped_node);
+                Debug.Log($"Expanding node: {popped_node.position}");
+                found_goal = expand_node(popped_node);
             }
         }
         
     }
 
-    static bool? expand_node(Node expanding_node)
+    static bool expand_node(Node expanding_node)
     {
         var neighbors = get_neighbors(expanding_node.position);
 
@@ -117,7 +119,7 @@ public partial class AstarMain : MonoBehaviour
         {
             if (neighbor_position == end_node.position)
             {
-                Console.WriteLine($"Goal found at node: {expanding_node.position}, with distance: {expanding_node.f_value}!");
+                Debug.Log($"Goal found at node: {expanding_node.position}, with distance: {expanding_node.f_value}!");
                 return true;
             }
 
@@ -153,7 +155,7 @@ public partial class AstarMain : MonoBehaviour
             OpenPriorityQueue.Add(neighbor);
         }
 
-        return null;
+        return false;
     }
 
     IEnumerator pathRenderer()
