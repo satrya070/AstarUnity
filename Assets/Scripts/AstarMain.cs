@@ -8,8 +8,8 @@ using UnityEngine.UIElements;
 public class AstarMain : MonoBehaviour
 {
     Tilemap tilemap;
-    (int, int) start_node;
-    (int, int) end_node;
+    (int, int)? start_node;
+    (int, int)? end_node;
 
     // Start is called before the first frame update
     void Start()
@@ -20,7 +20,7 @@ public class AstarMain : MonoBehaviour
         Debug.Log(tilemap.GetTileFlags(new Vector3Int(-9, 4, 0)));
         tilemap.SetColor(new Vector3Int(-9, 4, 0), new Color(253f, 0.4f, 0.6f));
 
-        StartCoroutine(pathRenderer());
+        // StartCoroutine(pathRenderer());
     }
 
     // Update is called once per frame
@@ -34,6 +34,7 @@ public class AstarMain : MonoBehaviour
     {
         Vector3 click_position = Input.mousePosition;
 
+        // use the left click to mark the starting point
         if (Input.GetMouseButtonDown(0))
         {
             Vector3 world_position = Camera.main.ScreenToWorldPoint(click_position);
@@ -58,9 +59,9 @@ public class AstarMain : MonoBehaviour
 
         }
 
+        // use the right click to mark the end point
         if (Input.GetMouseButtonDown(1))
         {
-            // use the right click to mark the end point
             Vector3 world_position = Camera.main.ScreenToWorldPoint(click_position);
             Vector3Int tile_coords = Vector3Int.RoundToInt(tilemap.WorldToCell(world_position));
 
@@ -74,8 +75,15 @@ public class AstarMain : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Return))
         {
-            Debug.Log("Starting Astar!");
+            if (end_node is null || start_node is null || start_node == end_node)
+            {
+                Debug.Log("Properly set (distinct) start and end node!");
+                return;
+            }
+
+            Debug.Log("starting!");
         }
+        
     }
 
     IEnumerator pathRenderer()
