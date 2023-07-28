@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using static UnityEngine.RuleTile.TilingRuleOutput;
 
 public partial class AstarMain : MonoBehaviour
 {
-    Tilemap tilemap;
+    static Tilemap tilemap;
     static Node start_node;
     static Node end_node;
 
@@ -19,8 +20,8 @@ public partial class AstarMain : MonoBehaviour
     {
         tilemap = GetComponent<Tilemap>();
 
-        tilemap.SetTileFlags(new Vector3Int(-9, 4, 0), TileFlags.None);
-        tilemap.SetColor(new Vector3Int(-9, 4, 0), new Color(253f, 0.4f, 0.6f));
+        tilemap.SetTileFlags(new Vector3Int(0, 0, 0), TileFlags.None);
+        tilemap.SetColor(new Vector3Int(0, 0, 0), new Color(253f, 0.4f, 0.6f));
 
         // StartCoroutine(pathRenderer());
 
@@ -96,14 +97,25 @@ public partial class AstarMain : MonoBehaviour
             while (found_goal is false && OpenPriorityQueue.Count > 0)
             {
                 // imitate priority queue behavior (pop node with lowest dist)
-                var sorted_list = OpenPriorityQueue.OrderBy(node => node.g_value).ToList();
+                var sorted_list = OpenPriorityQueue.OrderBy(node => node.f_value).ToList();
                 Node popped_node = sorted_list.First();
 
                 // remove from open list prioqueue
                 OpenPriorityQueue.Remove(popped_node);
 
-                Debug.Log($"Expanding node: {popped_node.position}");
+                Debug.Log($"Expanding node: {popped_node.position} {popped_node.f_value}");
                 found_goal = expand_node(popped_node);
+
+                // push to closed list
+                closed[popped_node.position] = popped_node;
+
+                if (found_goal is true)
+                {
+                    // register end node in closed_list to perform backtrack
+                    closed[end_node.position] = new Node(end_node.position, popped_node.position, popped_node.g_value + 1);
+                    closed[end_node.position].f_value = popped_node.g_value + 1;
+                    break;
+                }
             }
         }
         
@@ -112,6 +124,10 @@ public partial class AstarMain : MonoBehaviour
     static bool expand_node(Node expanding_node)
     {
         var neighbors = get_neighbors(expanding_node.position);
+
+        var expanding_tilemap_position = new Vector3Int(expanding_node.position.Item1, expanding_node.position.Item2, 0);
+        tilemap.SetTileFlags(expanding_tilemap_position, TileFlags.None);
+        tilemap.SetColor(expanding_tilemap_position, new Color(253f, 0.4f, 0.6f));
 
         Console.WriteLine($"gathering all neighbors for node: {expanding_node.position}");
 
