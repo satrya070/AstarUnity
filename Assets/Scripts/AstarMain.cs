@@ -139,6 +139,13 @@ public partial class AstarMain : MonoBehaviour
                 return true;
             }
 
+            // check if neighbor position outside tilemap bounds
+            if (!tilemap.HasTile(new Vector3Int(neighbor_position.Item1, neighbor_position.Item2, 0))) { continue; }
+
+            // if node position is a wall block skip
+            TileBase tile = tilemap.GetTile(new Vector3Int(neighbor_position.Item1, neighbor_position.Item2, 0));
+            if (tile is not null && tile.name == "wall") { continue; }
+
             // if node in closed, already expanded so skip
             if (closed.ContainsKey(neighbor_position)) { continue; }
 
