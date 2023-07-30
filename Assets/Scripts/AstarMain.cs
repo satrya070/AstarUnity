@@ -13,7 +13,7 @@ public partial class AstarMain : MonoBehaviour
     static Node end_node;
 
     static List<Node> OpenPriorityQueue = new List<Node>();
-    static Dictionary<(int, int), Node> closed = new Dictionary<(int, int), Node>();
+    static Dictionary<(int, int)?, Node> closed = new Dictionary<(int, int)?, Node>();
 
     // Start is called before the first frame update
     void Start()
@@ -117,6 +117,20 @@ public partial class AstarMain : MonoBehaviour
                     break;
                 }
             }
+
+            // track back path and color
+            tilemap.SetTileFlags(new Vector3Int(end_node.position.Item1, end_node.position.Item2, 0), TileFlags.None);
+            tilemap.SetColor(new Vector3Int(end_node.position.Item1, end_node.position.Item2, 0), new Color(255f, 0f, 0f));
+
+            Node backtrack = closed[end_node.position];
+            while (backtrack.previous_node is not null)
+            {
+                tilemap.SetColor(new Vector3Int(backtrack.position.Item1, backtrack.position.Item2, 0), new Color(255f, 0f, 0f));
+                backtrack = closed[backtrack.previous_node];
+            }
+
+            Debug.Log($"DONE");
+            
         }
         
     }
