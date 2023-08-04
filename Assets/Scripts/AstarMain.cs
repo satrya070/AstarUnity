@@ -55,7 +55,7 @@ public partial class AstarMain : MonoBehaviour
         }
 
         // use the right click to mark the end point
-        if (Input.GetMouseButtonDown(1))
+        if (Input.GetMouseButtonDown(2))
         {
             Vector3 world_position = Camera.main.ScreenToWorldPoint(click_position);
             Vector3Int tile_coords = Vector3Int.RoundToInt(tilemap.WorldToCell(world_position));
@@ -107,21 +107,45 @@ public partial class AstarMain : MonoBehaviour
                 }
             }
 
-            // track back path and color
-            tilemap.SetTileFlags(new Vector3Int(end_node.position.Item1, end_node.position.Item2, 0), TileFlags.None);
-            tilemap.SetColor(new Vector3Int(end_node.position.Item1, end_node.position.Item2, 0), new Color(255f, 0f, 0f));
-
-            Node backtrack = closed[end_node.position];
-            while (backtrack.previous_node is not null)
+            if (found_goal)
             {
-                tilemap.SetColor(new Vector3Int(backtrack.position.Item1, backtrack.position.Item2, 0), new Color(255f, 0f, 0f));
-                backtrack = closed[backtrack.previous_node];
+                drawShortestPath();
+            } else
+            {
+                Debug.Log("No path possible path exists!");
             }
-
-            Debug.Log($"DONE");
-            
         }
-        
+    }
+
+    void drawShortestPath()
+    {
+        // color the end node
+        tilemap.SetTileFlags(new Vector3Int(end_node.position.Item1, end_node.position.Item2, 0), TileFlags.None);
+        tilemap.SetColor(new Vector3Int(end_node.position.Item1, end_node.position.Item2, 0), new Color(255f, 0f, 0f));
+
+        var backtrack_list = new List<Node>();
+
+        Node backtrack = closed[end_node.position];
+        while (backtrack.previous_node is not null)
+        {
+            backtrack = closed[backtrack.previous_node];
+            backtrack_list.Add(backtrack);
+        }
+
+        // draws the backtrack path
+        StartCoroutine(DrawTracks(backtrack_list));
+
+        Debug.Log($"DONE");
+    }
+
+    IEnumerator DrawTracks(List<Node> nodelist)
+    {
+        foreach (Node node in nodelist)
+        {
+            tilemap.SetColor(new Vector3Int(node.position.Item1, node.position.Item2, 0), new Color(255f, 0f, 0f));
+            Debug.Log(node.position);
+            yield return new WaitForSeconds(0.5f);
+        }
     }
 
     static bool expand_node(Node expanding_node)
