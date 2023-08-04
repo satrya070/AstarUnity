@@ -20,11 +20,6 @@ public partial class AstarMain : MonoBehaviour
     {
         tilemap = GetComponent<Tilemap>();
 
-        tilemap.SetTileFlags(new Vector3Int(0, 0, 0), TileFlags.None);
-        tilemap.SetColor(new Vector3Int(0, 0, 0), new Color(253f, 0.4f, 0.6f));
-
-        // StartCoroutine(pathRenderer());
-
         Debug.Log(start_node);
        
     }
@@ -54,12 +49,6 @@ public partial class AstarMain : MonoBehaviour
 
             Debug.Log($"start_node is: {start_node.position}");
             
-
-            //Debug.Log(tile.);
-
-            // try set color and couroutine etst
-            //var tilo = tilemap.GetTile(tile)
-            //Debug.Log();
             tilemap.SetTileFlags(tile_coords, TileFlags.None);
             tilemap.SetColor(tile_coords, new Color(253f, 0.4f, 0.6f));
 
