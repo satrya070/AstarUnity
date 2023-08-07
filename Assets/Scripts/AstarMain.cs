@@ -14,6 +14,7 @@ public partial class AstarMain : MonoBehaviour
 
     static List<Node> OpenPriorityQueue = new List<Node>();
     static Dictionary<(int, int)?, Node> closed = new Dictionary<(int, int)?, Node>();
+    [SerializeField] Tile wallTile;
 
     // Start is called before the first frame update
     void Start()
@@ -34,36 +35,39 @@ public partial class AstarMain : MonoBehaviour
     void mouseClick()
     {
         Vector3 click_position = Input.mousePosition;
+        Vector3 world_position = Camera.main.ScreenToWorldPoint(click_position);
+        Vector3Int tile_coords = Vector3Int.RoundToInt(tilemap.WorldToCell(world_position));
 
         // use the left click to mark the starting point
         if (Input.GetMouseButtonDown(0))
         {
-            Vector3 world_position = Camera.main.ScreenToWorldPoint(click_position);
-            Vector3Int tile_coords = Vector3Int.RoundToInt(tilemap.WorldToCell(world_position));
 
             start_node = new Node((tile_coords.x, tile_coords.y), null, 0);
-
-            //Debug.Log(tile_coords);
-
-            var tile = tilemap.GetTile(tile_coords);
 
             Debug.Log($"start_node is: {start_node.position}");
             
             tilemap.SetTileFlags(tile_coords, TileFlags.None);
-            tilemap.SetColor(tile_coords, new Color(253f, 0.4f, 0.6f));
+            tilemap.SetColor(tile_coords, new Color(0.9f, 0.71f, 0.2f));
 
         }
 
         // use the right click to mark the end point
         if (Input.GetMouseButtonDown(2))
         {
-            Vector3 world_position = Camera.main.ScreenToWorldPoint(click_position);
-            Vector3Int tile_coords = Vector3Int.RoundToInt(tilemap.WorldToCell(world_position));
-
             end_node = new Node((tile_coords.x, tile_coords.y));
             Debug.Log(end_node == null);
 
             Debug.Log($"end_node is: {end_node.position}");
+
+            tilemap.SetTileFlags(tile_coords, TileFlags.None);
+            tilemap.SetColor(tile_coords, new Color(0.9f, 0.71f, 0.2f));
+        }
+
+        // mark walls
+        if (Input.GetMouseButtonDown(1))
+        {
+            var tile = tilemap.GetTile(tile_coords);
+            tilemap.SetTile(tile_coords, wallTile);
         }
     }
 
@@ -119,9 +123,12 @@ public partial class AstarMain : MonoBehaviour
 
     void drawShortestPath()
     {
-        // color the end node
+        // recolor start and end node
         tilemap.SetTileFlags(new Vector3Int(end_node.position.Item1, end_node.position.Item2, 0), TileFlags.None);
-        tilemap.SetColor(new Vector3Int(end_node.position.Item1, end_node.position.Item2, 0), new Color(255f, 0f, 0f));
+        tilemap.SetColor(new Vector3Int(end_node.position.Item1, end_node.position.Item2, 0), new Color(0.9f, 0.71f, 0.2f));
+
+        tilemap.SetTileFlags(new Vector3Int(start_node.position.Item1, start_node.position.Item2, 0), TileFlags.None);
+        tilemap.SetColor(new Vector3Int(start_node.position.Item1, start_node.position.Item2, 0), new Color(0.9f, 0.71f, 0.2f));
 
         var backtrack_list = new List<Node>();
 
@@ -133,6 +140,7 @@ public partial class AstarMain : MonoBehaviour
         }
 
         // draws the backtrack path
+        backtrack_list.Reverse();
         StartCoroutine(DrawTracks(backtrack_list));
 
         Debug.Log($"DONE");
@@ -140,11 +148,11 @@ public partial class AstarMain : MonoBehaviour
 
     IEnumerator DrawTracks(List<Node> nodelist)
     {
-        foreach (Node node in nodelist)
+        foreach (Node node in nodelist.Skip(1))
         {
-            tilemap.SetColor(new Vector3Int(node.position.Item1, node.position.Item2, 0), new Color(255f, 0f, 0f));
+            tilemap.SetColor(new Vector3Int(node.position.Item1, node.position.Item2, 0), new Color(0.85f, 0.15f, 0.15f));
             Debug.Log(node.position);
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.25f);
         }
     }
 
@@ -154,7 +162,7 @@ public partial class AstarMain : MonoBehaviour
 
         var expanding_tilemap_position = new Vector3Int(expanding_node.position.Item1, expanding_node.position.Item2, 0);
         tilemap.SetTileFlags(expanding_tilemap_position, TileFlags.None);
-        tilemap.SetColor(expanding_tilemap_position, new Color(253f, 0.4f, 0.6f));
+        tilemap.SetColor(expanding_tilemap_position, new Color(0.88f, 0.75f, 0.90f));
 
         Console.WriteLine($"gathering all neighbors for node: {expanding_node.position}");
 
@@ -206,19 +214,5 @@ public partial class AstarMain : MonoBehaviour
         }
 
         return false;
-    }
-
-    IEnumerator pathRenderer()
-    {
-        var nodes = new List<(int, int)>();
-        nodes.Add((0, 1));
-        nodes.Add((1, 2));
-        nodes.Add((2, 3));
-
-        foreach (var node in nodes)
-        {
-            Debug.Log(node);
-            yield return new WaitForSeconds(5f);
-        }
     }
 }
